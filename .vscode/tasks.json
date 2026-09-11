@@ -1,0 +1,744 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup: install Python dependencies",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m pip install -r requirements.txt",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: install WSI dependencies",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m pip install -r requirements-wsi.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: install WSI encoder dependencies",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m pip install -r requirements-encoder.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Hugging Face: login for gated encoders",
+      "type": "shell",
+      "command": "mkdir -p ${workspaceFolder}/models/huggingface_cache && HF_HOME=${workspaceFolder}/models/huggingface_cache ${workspaceFolder}/.venv/bin/hf auth login",
+      "problemMatcher": []
+    },
+    {
+      "label": "Hugging Face: check login",
+      "type": "shell",
+      "command": "HF_HOME=${workspaceFolder}/models/huggingface_cache ${workspaceFolder}/.venv/bin/hf auth whoami",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: install CONCH dependencies",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m pip install -r requirements-conch.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: install MLflow dependencies",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m pip install -r requirements-mlflow.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Data: rebuild GDC inventory",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python work/build_gdc_inventory.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: start MySQL",
+      "type": "shell",
+      "command": "docker-compose up -d mysql adminer",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: run app",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python app.py --host 127.0.0.1 --port 8501",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dashboard: check data",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python app.py --check",
+      "problemMatcher": []
+    },
+    {
+      "label": "MLflow: log existing experiments",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/log_results_to_mlflow.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "MLflow: run UI",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python -m mlflow server --backend-store-uri sqlite:///${workspaceFolder}/mlflow.db --default-artifact-root ${workspaceFolder}/mlruns --host 127.0.0.1 --port 5000",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Model: train final RNA+Clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/train_final_survival_model.py --out-dir models/rna_clinical_final --n-rna-features 300 --penalizer 0.1 --l1-ratio 0.5 --mlflow",
+      "problemMatcher": []
+    },
+    {
+      "label": "Model: predict example RNA+Clinical patient",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/predict_survival_risk.py --model-dir models/rna_clinical_final --rna-file models/rna_clinical_final/example_inputs/example_rna.tsv --clinical-json models/rna_clinical_final/example_inputs/example_clinical.json --out-dir outputs/predictions/example_patient",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: GBM DEG + DGIdb repurposing",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_gbm_drug_repurposing.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: Xena GBM vs GTEx brain repurposing",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_xena_gbm_normal_drug_repurposing.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: build CLUE/LINCS reversal package",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_clue_lincs_reversal_package.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: submit CLUE/LINCS query",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_clue_lincs_reversal_package.py --submit-clue",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: check CLUE/LINCS job",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/check_clue_lincs_job.py --job-id 6a9cf168468f3a0013d546de --poll --poll-seconds 30 --max-wait-seconds 360 --download",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: integrate CLUE/LINCS tau scores",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/integrate_clue_lincs_results.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: build final repurposing shortlist",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_drug_repurposing_final_summary.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Drug: build validation matrix",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_drug_candidate_validation_matrix.py --fetch-external",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: final RNA+Clinical inference prototype",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Model: train final RNA+Clinical",
+        "Model: predict example RNA+Clinical patient"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: MLflow setup and log",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Setup: install MLflow dependencies",
+        "MLflow: log existing experiments"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: stop MySQL",
+      "type": "shell",
+      "command": "docker-compose stop mysql adminer",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: init schema",
+      "type": "shell",
+      "command": "docker-compose exec -T mysql sh -c 'mysql -u\"$MYSQL_USER\" -p\"$MYSQL_PASSWORD\" \"$MYSQL_DATABASE\"' < sql/schema.sql",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: wait MySQL",
+      "type": "shell",
+      "command": "docker-compose exec -T mysql sh -c 'until mysqladmin ping -h127.0.0.1 -u\"$MYSQL_USER\" -p\"$MYSQL_PASSWORD\" --silent; do sleep 2; done'",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: generate load SQL",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/generate_mysql_load_sql.py --include-dev-results --out db/load_tcga.sql",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: load primary metadata + dev results",
+      "type": "shell",
+      "command": "docker-compose exec -T mysql sh -c 'mysql -u\"$MYSQL_USER\" -p\"$MYSQL_PASSWORD\" \"$MYSQL_DATABASE\"' < db/load_tcga.sql",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: query summary",
+      "type": "shell",
+      "command": "docker-compose exec -T mysql sh -c 'mysql -u\"$MYSQL_USER\" -p\"$MYSQL_PASSWORD\" \"$MYSQL_DATABASE\"' < sql/summary.sql",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: DB setup and load",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "DB: start MySQL",
+        "DB: wait MySQL",
+        "DB: init schema",
+        "DB: generate load SQL",
+        "DB: load primary metadata + dev results",
+        "DB: query summary"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: drug repurposing + DB load",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Drug: GBM DEG + DGIdb repurposing",
+        "Drug: Xena GBM vs GTEx brain repurposing",
+        "Drug: build CLUE/LINCS reversal package",
+        "Drug: build final repurposing shortlist",
+        "Drug: build validation matrix",
+        "Pipeline: DB setup and load"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Data: download dev RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/download_gdc_manifest.py --manifest outputs/gdc_manifest_rna_dev_20_cases.tsv --out-dir data/gdc/rna_dev --timeout 300 --retries 5 --retry-sleep 10",
+      "problemMatcher": []
+    },
+    {
+      "label": "Data: check full RNA download",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/check_manifest_download.py --manifest outputs/gdc_manifest_rna_star_counts_primary_overlap.tsv --out-dir data/gdc/rna",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: create smoke manifest",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/create_wsi_smoke_manifest.py --n-per-project 3 --max-size-mb 100",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: download smoke slides",
+      "type": "shell",
+      "command": "./gdc-client download -m outputs/gdc_manifest_wsi_smoke.tsv -d data/gdc/wsi_smoke -n 4 --retry-amount 10 --wait-time 5 --no-related-files --no-annotations",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: check smoke download",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/check_manifest_download.py --manifest outputs/gdc_manifest_wsi_smoke.tsv --out-dir data/gdc/wsi_smoke",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: build smoke patch index",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_wsi_patch_index.py --wsi-dir data/gdc/wsi_smoke --file-map outputs/gdc_wsi_file_map_smoke.tsv --out-dir data/processed/wsi_smoke --thumbnail-size 2048 --patch-size 512 --stride 512 --min-tissue-fraction 0.50 --max-patches-per-slide 200",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract smoke patch images",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/extract_wsi_patch_images.py --patch-index data/processed/wsi_smoke/patch_index.tsv --out-dir data/processed/wsi_smoke/patch_images --patches-per-slide 8 --output-size 256",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract handcrafted features",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/extract_wsi_handcrafted_features.py --slide-summary data/processed/wsi_smoke/slide_summary.tsv --patch-index data/processed/wsi_smoke/patch_index.tsv --out data/processed/wsi_smoke/wsi_handcrafted_features.tsv --patches-per-slide 32 --output-size 256",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: WSI smoke preprocessing",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "WSI: create smoke manifest",
+        "WSI: download smoke slides",
+        "WSI: check smoke download",
+        "WSI: build smoke patch index",
+        "WSI: extract smoke patch images",
+        "WSI: extract handcrafted features"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: create dev 50 manifest",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/create_wsi_smoke_manifest.py --n-per-project 25 --max-size-mb 100 --out-manifest outputs/gdc_manifest_wsi_dev_50.tsv --out-file-map outputs/gdc_wsi_file_map_dev_50.tsv --out-cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: download dev 50 slides",
+      "type": "shell",
+      "command": "./gdc-client download -m outputs/gdc_manifest_wsi_dev_50.tsv -d data/gdc/wsi_dev_50 -n 4 --retry-amount 10 --wait-time 5 --no-related-files --no-annotations",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: check dev 50 download",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/check_manifest_download.py --manifest outputs/gdc_manifest_wsi_dev_50.tsv --out-dir data/gdc/wsi_dev_50",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: build dev 50 patch index",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_wsi_patch_index.py --wsi-dir data/gdc/wsi_dev_50 --file-map outputs/gdc_wsi_file_map_dev_50.tsv --out-dir data/processed/wsi_dev_50 --thumbnail-size 2048 --patch-size 512 --stride 512 --min-tissue-fraction 0.50 --max-patches-per-slide 200",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract dev 50 patch images",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/extract_wsi_patch_images.py --patch-index data/processed/wsi_dev_50/patch_index.tsv --out-dir data/processed/wsi_dev_50/patch_images --patches-per-slide 8 --output-size 256",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract dev 50 handcrafted features",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/extract_wsi_handcrafted_features.py --slide-summary data/processed/wsi_dev_50/slide_summary.tsv --patch-index data/processed/wsi_dev_50/patch_index.tsv --out data/processed/wsi_dev_50/wsi_handcrafted_features.tsv --patches-per-slide 32 --output-size 256",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract dev 50 ResNet18 embeddings",
+      "type": "shell",
+      "command": "HF_HOME=${workspaceFolder}/models/huggingface_cache ${workspaceFolder}/.venv/bin/python scripts/extract_wsi_patch_embeddings.py --patch-image-index data/processed/wsi_dev_50/patch_images/patch_image_index.tsv --out-dir data/processed/wsi_dev_50/embeddings --encoder timm --model-name resnet18.a1_in1k --batch-size 16",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract dev 50 UNI embeddings",
+      "type": "shell",
+      "command": "HF_HOME=${workspaceFolder}/models/huggingface_cache ${workspaceFolder}/.venv/bin/python scripts/extract_wsi_patch_embeddings.py --patch-image-index data/processed/wsi_dev_50/patch_images/patch_image_index.tsv --out-dir data/processed/wsi_dev_50/embeddings --encoder uni --batch-size 8",
+      "problemMatcher": []
+    },
+    {
+      "label": "WSI: extract dev 50 CONCH embeddings",
+      "type": "shell",
+      "command": "HF_HOME=${workspaceFolder}/models/huggingface_cache ${workspaceFolder}/.venv/bin/python scripts/extract_wsi_patch_embeddings.py --patch-image-index data/processed/wsi_dev_50/patch_images/patch_image_index.tsv --out-dir data/processed/wsi_dev_50/embeddings --encoder conch --batch-size 8",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: WSI dev 50 preprocessing",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "WSI: create dev 50 manifest",
+        "WSI: download dev 50 slides",
+        "WSI: check dev 50 download",
+        "WSI: build dev 50 patch index",
+        "WSI: extract dev 50 patch images",
+        "WSI: extract dev 50 handcrafted features"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --feature-set clinical --out-dir results/clinical_dev50_baseline --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna --out-dir results/rna_dev50_baseline --n-rna-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna_clinical --out-dir results/rna_clinical_dev50_baseline --n-rna-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 WSI",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/wsi_handcrafted_features.tsv --feature-set wsi --out-dir results/wsi_dev50_baseline --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 WSI + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/wsi_handcrafted_features.tsv --feature-set wsi_clinical --out-dir results/wsi_clinical_dev50_baseline --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 WSI + RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --wsi data/processed/wsi_dev_50/wsi_handcrafted_features.tsv --feature-set wsi_rna_clinical --out-dir results/wsi_rna_clinical_dev50_baseline --n-rna-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 WSI baseline comparison",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Baseline: dev50 clinical",
+        "Baseline: dev50 RNA",
+        "Baseline: dev50 RNA + clinical",
+        "Baseline: dev50 WSI",
+        "Baseline: dev50 WSI + clinical",
+        "Baseline: dev50 WSI + RNA + clinical"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 WSI embedding",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/embeddings/timm_resnet18.a1_in1k_slide_embeddings.tsv --feature-set wsi --out-dir results/wsi_embedding_resnet18_dev50_baseline --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 WSI embedding + RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --wsi data/processed/wsi_dev_50/embeddings/timm_resnet18.a1_in1k_slide_embeddings.tsv --feature-set wsi_rna_clinical --out-dir results/wsi_embedding_resnet18_rna_clinical_dev50_baseline --n-rna-features 50 --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 UNI embedding",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_slide_embeddings.tsv --feature-set wsi --out-dir results/wsi_embedding_uni_dev50_baseline --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 UNI embedding + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_slide_embeddings.tsv --feature-set wsi_clinical --out-dir results/wsi_embedding_uni_clinical_dev50_baseline --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 UNI embedding + RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --wsi data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_slide_embeddings.tsv --feature-set wsi_rna --out-dir results/wsi_embedding_uni_rna_dev50_baseline --n-rna-features 50 --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 UNI embedding + RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --wsi data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_slide_embeddings.tsv --feature-set wsi_rna_clinical --out-dir results/wsi_embedding_uni_rna_clinical_dev50_baseline --n-rna-features 50 --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 CONCH embedding",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --wsi data/processed/wsi_dev_50/embeddings/conch_MahmoodLab_CONCH_slide_embeddings.tsv --feature-set wsi --out-dir results/wsi_embedding_conch_dev50_baseline --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev50 CONCH embedding + RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --wsi data/processed/wsi_dev_50/embeddings/conch_MahmoodLab_CONCH_slide_embeddings.tsv --feature-set wsi_rna_clinical --out-dir results/wsi_embedding_conch_rna_clinical_dev50_baseline --n-rna-features 50 --n-wsi-features 50 --folds 5 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 WSI embedding baseline",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Setup: install WSI encoder dependencies",
+        "WSI: extract dev 50 ResNet18 embeddings",
+        "Baseline: dev50 WSI embedding",
+        "Baseline: dev50 WSI embedding + RNA + clinical"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 UNI embedding baseline",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Setup: install WSI encoder dependencies",
+        "WSI: extract dev 50 UNI embeddings",
+        "Baseline: dev50 UNI embedding",
+        "Baseline: dev50 UNI embedding + clinical",
+        "Baseline: dev50 UNI embedding + RNA",
+        "Baseline: dev50 UNI embedding + RNA + clinical"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Interpretability: dev50 UNI patch importance",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_wsi_patch_importance.py --cases outputs/tcga_lgg_gbm_wsi_dev_50_cases.tsv --slide-embeddings data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_slide_embeddings.tsv --patch-embeddings data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_patch_embeddings.npz --patch-metadata data/processed/wsi_dev_50/embeddings/uni_MahmoodLab_UNI_patch_metadata.tsv --out results/wsi_uni_patch_importance.tsv --coef-out results/wsi_uni_patch_importance_coefficients.tsv --n-wsi-features 50 --penalizer 1.0 --l1-ratio 0.5",
+      "problemMatcher": []
+    },
+    {
+      "label": "Visualization: dev50 UNI WSI risk overlays",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/create_wsi_risk_overlay.py --slide-summary data/processed/wsi_dev_50/slide_summary.tsv --patch-importance results/wsi_uni_patch_importance.tsv --out-summary results/wsi_uni_risk_overlay_summary.tsv --top-n 8",
+      "problemMatcher": []
+    },
+    {
+      "label": "Visualization: dev50 UNI patch attention heatmaps",
+      "type": "shell",
+      "command": "HF_HOME=${workspaceFolder}/models/huggingface_cache HF_HUB_OFFLINE=1 ${workspaceFolder}/.venv/bin/python -u scripts/create_uni_patch_attention_heatmaps.py --patch-importance results/wsi_uni_patch_importance.tsv --out-dir data/processed/wsi_dev_50/patch_heatmaps_uni --out-index results/wsi_uni_patch_heatmaps.tsv --top-n-per-slide 8 --batch-size 4",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 UNI WSI interpretability",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Interpretability: dev50 UNI patch importance",
+        "Visualization: dev50 UNI WSI risk overlays",
+        "Visualization: dev50 UNI patch attention heatmaps"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 CONCH embedding baseline",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Setup: install CONCH dependencies",
+        "WSI: extract dev 50 CONCH embeddings",
+        "Baseline: dev50 CONCH embedding",
+        "Baseline: dev50 CONCH embedding + RNA + clinical"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: summarize dev50 WSI models",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/summarize_model_runs.py --run-dirs results/clinical_dev50_baseline results/rna_dev50_baseline results/rna_clinical_dev50_baseline results/wsi_dev50_baseline results/wsi_clinical_dev50_baseline results/wsi_rna_clinical_dev50_baseline results/wsi_embedding_resnet18_dev50_baseline results/wsi_embedding_resnet18_rna_clinical_dev50_baseline results/wsi_embedding_uni_dev50_baseline results/wsi_embedding_uni_clinical_dev50_baseline results/wsi_embedding_uni_rna_dev50_baseline results/wsi_embedding_uni_rna_clinical_dev50_baseline results/wsi_embedding_conch_dev50_baseline results/wsi_embedding_conch_rna_clinical_dev50_baseline --cohort-label \"WSI dev 50\" --out results/wsi_dev50_model_comparison.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "MLflow: log dev50 WSI experiments",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/log_results_to_mlflow.py --comparison results/wsi_dev50_model_comparison.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev50 WSI models + MLflow",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Pipeline: dev50 WSI baseline comparison",
+        "Pipeline: dev50 WSI embedding baseline",
+        "Pipeline: dev50 UNI WSI interpretability",
+        "Baseline: summarize dev50 WSI models",
+        "MLflow: log dev50 WSI experiments"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "RNA: build dev matrix",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_rna_matrix.py --rna-dir data/gdc/rna_dev --file-map outputs/gdc_rna_file_map_dev_20_cases.tsv --cases outputs/tcga_lgg_gbm_dev_20_cases.tsv --out data/processed/rna_tpm_dev_20.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "RNA: run dev Cox baseline",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_rna_cox_baseline.py --rna data/processed/rna_tpm_dev_20.tsv --cases outputs/tcga_lgg_gbm_dev_20_cases.tsv --out-dir results/rna_dev_baseline --n-features 50 --folds 5 --penalizer 1.0",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_dev_20_cases.tsv --feature-set clinical --out-dir results/dev_clinical_baseline --folds 5 --penalizer 1.0",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_dev_20_cases.tsv --rna data/processed/rna_tpm_dev_20.tsv --feature-set rna --out-dir results/dev_rna_baseline_v2 --n-rna-features 50 --folds 5 --penalizer 1.0",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: dev RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_dev_20_cases.tsv --rna data/processed/rna_tpm_dev_20.tsv --feature-set rna_clinical --out-dir results/dev_rna_clinical_baseline --n-rna-features 50 --folds 5 --penalizer 1.0",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: summarize dev models",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/summarize_model_runs.py --out results/dev_model_comparison.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev baseline comparison",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Baseline: dev clinical",
+        "Baseline: dev RNA",
+        "Baseline: dev RNA + clinical",
+        "Baseline: summarize dev models"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: dev RNA smoke test",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Data: download dev RNA",
+        "RNA: build dev matrix",
+        "RNA: run dev Cox baseline"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Data: download full RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/download_gdc_manifest.py --manifest outputs/gdc_manifest_rna_star_counts_primary_overlap.tsv --out-dir data/gdc/rna --timeout 300 --retries 5 --retry-sleep 10",
+      "problemMatcher": []
+    },
+    {
+      "label": "Data: download full RNA fast",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/download_gdc_manifest.py --manifest outputs/gdc_manifest_rna_star_counts_primary_overlap.tsv --out-dir data/gdc/rna --timeout 120 --retries 10 --retry-sleep 5 --workers 4",
+      "problemMatcher": []
+    },
+    {
+      "label": "RNA: build full matrix",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/build_rna_matrix.py --rna-dir data/gdc/rna --file-map outputs/gdc_rna_file_map_primary_overlap.tsv --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --out data/processed/rna_tpm_primary_overlap.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "RNA: run full Cox baseline",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_rna_cox_baseline.py --rna data/processed/rna_tpm_primary_overlap.tsv --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --out-dir results/rna_primary_baseline",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: full clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --feature-set clinical --out-dir results/full_clinical_baseline --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: full RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna --out-dir results/full_rna_baseline_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: full RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna_clinical --out-dir results/full_rna_clinical_baseline_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: create case sets",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/create_stratified_case_sets.py --cases outputs/tcga_lgg_gbm_primary_overlap_cases.tsv --cbio outputs/cbioportal_pancan_glioma_covariates.tsv --out-dir outputs/stratified_case_sets --min-cases 50",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: LGG clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_lgg.tsv --feature-set clinical --out-dir results/stratified_tcga_lgg_clinical --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: LGG RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_lgg.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna --out-dir results/stratified_tcga_lgg_rna_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: LGG RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_lgg.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna_clinical --out-dir results/stratified_tcga_lgg_rna_clinical_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: GBM clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_gbm.tsv --feature-set clinical --out-dir results/stratified_tcga_gbm_clinical --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: GBM RNA",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_gbm.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna --out-dir results/stratified_tcga_gbm_rna_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: GBM RNA + clinical",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_cox_baseline.py --cases outputs/stratified_case_sets/tcga_gbm.tsv --rna data/processed/rna_tpm_primary_overlap.tsv --feature-set rna_clinical --out-dir results/stratified_tcga_gbm_rna_clinical_fast --n-rna-features 300 --folds 5 --penalizer 0.1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stratified: summarize models",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/summarize_model_runs.py --results-root results --out results/full_model_comparison.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: stratified LGG/GBM baseline",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Stratified: create case sets",
+        "Stratified: LGG clinical",
+        "Stratified: LGG RNA",
+        "Stratified: LGG RNA + clinical",
+        "Stratified: GBM clinical",
+        "Stratified: GBM RNA",
+        "Stratified: GBM RNA + clinical",
+        "Stratified: summarize models"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Interpretability: RNA suite",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/run_rna_interpretability_suite.py --top-n 50 --patient-top-k 5 --out results/rna_interpretability_top_genes.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "Interpretability: plot RNA genes",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/plot_rna_interpretability.py --top-genes results/rna_interpretability_top_genes.tsv --out-dir results/figures --top-n 10",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: RNA interpretability",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Interpretability: RNA suite",
+        "Interpretability: plot RNA genes"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Baseline: summarize full models",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python scripts/summarize_model_runs.py --out results/full_model_comparison.tsv",
+      "problemMatcher": []
+    },
+    {
+      "label": "Pipeline: full RNA baseline",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Data: download full RNA fast",
+        "RNA: build full matrix",
+        "Baseline: full clinical",
+        "Baseline: full RNA",
+        "Baseline: full RNA + clinical",
+        "Baseline: summarize full models"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

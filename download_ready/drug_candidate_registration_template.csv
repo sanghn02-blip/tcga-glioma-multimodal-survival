@@ -1,0 +1,4 @@
+drug_name,primary_target,targets,action,validation_score,clue_tau_score,bbb_rule_label,approved,antineoplastic,gbm_trial_count,evidence_comment
+ExampleDrug-ABCC3,ABCC3,ABCC3;TOP2A,inhibitor,0.720,-82.50,BBB 물성 경계,false,false,0,ABCC3 위험 기여 환자에서 우선 검토할 사용자 등록 후보입니다.
+ExampleDrug-SPP1,SPP1,SPP1;VEGFA,inhibitor,0.680,-75.10,BBB 물성 불리,false,false,0,SPP1 및 VEGFA 축과 연결되는 탐색 후보입니다.
+ExampleDrug-CDK4,CDK4,CDK4;CDK6,inhibitor,0.970,-58.40,BBB 물성 경계,true,true,2,CDK4 증폭 또는 세포주기 관련 고위험 신호가 있을 때 우선 검토할 후보입니다.

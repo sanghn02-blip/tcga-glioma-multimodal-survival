@@ -1,0 +1,58 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "RNA dev: build matrix",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/build_rna_matrix.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--rna-dir",
+        "data/gdc/rna_dev",
+        "--file-map",
+        "outputs/gdc_rna_file_map_dev_20_cases.tsv",
+        "--cases",
+        "outputs/tcga_lgg_gbm_dev_20_cases.tsv",
+        "--out",
+        "data/processed/rna_tpm_dev_20.tsv"
+      ]
+    },
+    {
+      "name": "RNA dev: Cox baseline",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_rna_cox_baseline.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--rna",
+        "data/processed/rna_tpm_dev_20.tsv",
+        "--cases",
+        "outputs/tcga_lgg_gbm_dev_20_cases.tsv",
+        "--out-dir",
+        "results/rna_dev_baseline",
+        "--n-features",
+        "50",
+        "--folds",
+        "5",
+        "--penalizer",
+        "1.0"
+      ]
+    },
+    {
+      "name": "RNA full: Cox baseline",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/run_rna_cox_baseline.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--rna",
+        "data/processed/rna_tpm_primary_overlap.tsv",
+        "--cases",
+        "outputs/tcga_lgg_gbm_primary_overlap_cases.tsv",
+        "--out-dir",
+        "results/rna_primary_baseline"
+      ]
+    }
+  ]
+}

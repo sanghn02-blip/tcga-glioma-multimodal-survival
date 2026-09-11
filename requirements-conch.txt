@@ -1,0 +1,2 @@
+-r requirements-encoder.txt
+git+https://github.com/Mahmoodlab/CONCH.git

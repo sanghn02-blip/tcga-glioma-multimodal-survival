@@ -1,0 +1,7 @@
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+lifelines>=0.29
+joblib>=1.4
+requests>=2.32
+tqdm>=4.66

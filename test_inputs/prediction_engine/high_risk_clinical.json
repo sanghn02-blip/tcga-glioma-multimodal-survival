@@ -1,0 +1,11 @@
+{
+  "project_id": "TCGA-GBM",
+  "gender": "Unknown",
+  "tumor_grade": "Unknown",
+  "primary_diagnosis": "Glioblastoma",
+  "age_at_diagnosis_years": 78.7460643394935,
+  "pancan_subtype": "GBM_IDHwt",
+  "cancer_type_detailed": "Glioblastoma Multiforme",
+  "tumor_type": "Glioblastoma Multiforme (GBM), Untreated",
+  "case_submitter_id": "TCGA-06-5412"
+}

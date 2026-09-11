@@ -1,0 +1,3 @@
+label	case_submitter_id	expected_risk_group	expected_risk_score	rna_file	clinical_json
+high_risk	TCGA-06-5412	High	12.537488948906647	test_inputs/prediction_engine/high_risk_rna.tsv	test_inputs/prediction_engine/high_risk_clinical.json
+low_risk	TCGA-TM-A84T	Low	0.1842072131006707	test_inputs/prediction_engine/low_risk_rna.tsv	test_inputs/prediction_engine/low_risk_clinical.json

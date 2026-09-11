@@ -1,0 +1,33 @@
+# Local secrets and machine-specific config
+.env
+.env.*
+!.env.example
+
+# Python / editor / OS artifacts
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.matplotlib/
+
+# Local databases and service state
+mysql_data/
+mlflow.db
+mlruns/
+db/load_tcga.sql
+
+# TCGA downloads and generated analysis outputs
+data/
+outputs/
+results/
+models/
+
+# Large downloaded binaries and temporary transfer files
+gdc-client
+*.part
+*.svs
+*.ndpi
+*.tif
+*.tiff
+*.tar.gz
+*.zip

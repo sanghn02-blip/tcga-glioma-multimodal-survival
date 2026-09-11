@@ -1,0 +1,11 @@
+{
+  "project_id": "TCGA-LGG",
+  "gender": "Unknown",
+  "tumor_grade": "G2",
+  "primary_diagnosis": "Mixed glioma",
+  "age_at_diagnosis_years": 19.148528405201915,
+  "pancan_subtype": "LGG_IDHmut-non-codel",
+  "cancer_type_detailed": "Oligoastrocytoma",
+  "tumor_type": "Oligoastrocytoma",
+  "case_submitter_id": "TCGA-TM-A84T"
+}

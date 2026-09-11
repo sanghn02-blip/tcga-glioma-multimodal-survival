@@ -1,0 +1,2 @@
+openslide-python>=1.4
+openslide-bin>=4.0
