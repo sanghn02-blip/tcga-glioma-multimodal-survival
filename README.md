@@ -2,6 +2,65 @@
 
 Interpretable multimodal survival prediction for glioma using TCGA whole-slide pathology images, RNA-seq expression, and clinical covariates.
 
+## Project Overview
+
+This project is a research prototype for **translational glioma analysis**. It connects patient-level survival prediction, pathology-image interpretation, RNA risk-gene interpretation, and drug-repurposing candidate ranking in one dashboard.
+
+In practical terms, the dashboard is designed to answer four questions:
+
+1. Can RNA expression and clinical features estimate a glioma patient's survival risk?
+2. Does adding WSI pathology information improve or explain the prediction?
+3. Which genes and image regions are associated with high-risk prediction?
+4. Which existing drugs may be worth reviewing as GBM drug-repurposing candidates?
+
+## Analysis Flow
+
+```mermaid
+flowchart LR
+    A[TCGA-LGG / TCGA-GBM patients] --> B[GDC clinical survival data]
+    A --> C[GDC RNA-seq STAR Counts]
+    A --> D[GDC diagnostic WSI slides]
+    B --> E[Clinical covariates]
+    C --> F[RNA expression matrix]
+    D --> G[Tissue detection and patch extraction]
+    G --> H[WSI handcrafted features or patch embeddings]
+    E --> I[Survival prediction model]
+    F --> I
+    H --> I
+    I --> J[Risk score and Kaplan-Meier analysis]
+    I --> K[RNA and WSI interpretability]
+    F --> L[GBM vs normal brain differential expression]
+    L --> M[DGIdb drug-target matching]
+    M --> N[CLUE/LINCS tau validation]
+    N --> O[Drug repurposing shortlist]
+```
+
+## Dashboard Views
+
+| View | What it shows | Why it matters |
+|---|---|---|
+| Risk Prediction | RNA table upload, clinical input cells, optional WSI image registration, predicted risk group and risk score | Demonstrates how a new patient-like case can be passed into the prototype inference engine. |
+| Model Performance & Survival | C-index comparison, Kaplan-Meier curves, RNA risk-gene contribution plots | Shows whether multimodal features improve survival prediction over single-modality baselines. |
+| WSI Pathology | Whole-slide preview, patch samples, tissue ratio, patch-level importance overlays | Makes pathology evidence more interpretable by showing which slide regions are being inspected. |
+| Drug Candidates | GBM drug-repurposing shortlist, integrated candidate table, user-added drug candidates, patient-linked drug interpretation | Connects GBM molecular findings to existing drugs and prioritizes candidates for further review. |
+
+## Data Sources
+
+| Source | Data used in this project | Role |
+|---|---|---|
+| GDC / TCGA-LGG and TCGA-GBM | Clinical survival fields, RNA-seq STAR-counts, diagnostic WSI slide files | Main patient cohort for survival modeling and pathology analysis. |
+| cBioPortal PanCancer Atlas | Glioma subtype, grade, IDH/1p19q-related helper covariates | Adds clinically meaningful covariates for stratified analysis. |
+| UCSC Xena Toil TCGA/GTEx | TCGA-GBM tumor expression and GTEx normal brain expression | Supports GBM-vs-normal-brain differential expression analysis. |
+| DGIdb | Drug-gene interaction records | Links GBM-associated genes to existing drug candidates. |
+| CLUE/LINCS | Perturbation tau scores | Checks whether a candidate drug tends to reverse the GBM expression signature. |
+| PubChem / ClinicalTrials.gov | Drug property and clinical-trial evidence flags | Adds first-pass validation context for drug-repurposing candidates. |
+
+The current GDC inventory uses **Data Release 46.0 - August 10, 2026**. The main eligible cohort contains **681 patients** with WSI, RNA, and survival information: **489 TCGA-LGG** and **192 TCGA-GBM**.
+
+## Important Interpretation Note
+
+This repository is a research and education prototype. The risk scores, WSI importance views, and drug candidates are not clinical recommendations. Drug-repurposing candidates require additional biological validation, toxicity review, blood-brain barrier assessment, and clinical evidence review.
+
 ## Current Data Cohort
 
 See `outputs/data_inventory.md` for the exact GDC release, cohort counts, and generated manifests.
